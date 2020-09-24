@@ -47,8 +47,8 @@ public class Hotbar extends Container<Item> implements Widget {
                 Gui.getTextureRenderer().renderItem(item, (int)slots[i].getBoundingBox().getCenter().x, (int)slots[i].getBoundingBox().getCenter().y);
             }
         }
-        if (player.getOnMouse() != null)
-            Gui.getTextureRenderer().renderItem(player.getOnMouse(), mouseX, mouseY);
+        /*if (player.getOnMouse() != null)
+            Gui.getTextureRenderer().renderItem(player.getOnMouse(), mouseX, mouseY);*/
     }
 
     private Collision slotData;

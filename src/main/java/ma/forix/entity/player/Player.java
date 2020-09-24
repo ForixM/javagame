@@ -3,10 +3,13 @@ package ma.forix.entity.player;
 import ma.forix.collision.Collision;
 import ma.forix.entity.Entity;
 import ma.forix.entity.Inventory;
+import ma.forix.game.Factory;
 import ma.forix.gui.Gui;
 import ma.forix.gui.Slot;
 import ma.forix.item.Item;
 import ma.forix.renderer.*;
+import ma.forix.tile.TileContainer;
+import ma.forix.util.TilePos;
 import ma.forix.util.Transform;
 import ma.forix.world.World;
 import org.joml.Vector2f;
@@ -21,42 +24,48 @@ public class Player extends Entity {
     private boolean showInventory = false;
     private boolean renderBlockStorage = false;
     private Inventory inventory;
+    private TileContainer opened = null;
     private Hotbar hotbar;
+    private int inventoryWidgetId;
+    private int mouseX, mouseY;
 
     public Player(World world, Transform transform) {
         super(world, new Texture("bg.png"), transform);
-        inventory = new Inventory(10, this, new Vector2f(0, 0));
+        inventory = new Inventory(10, this, new Vector2f(0, 0), getContainer());
         hotbar = new Hotbar(5, this, new Texture("/gui/hotbar.png"));
     }
 
     @Override
     public void update(float delta, Window window, Camera camera, World world) {
         processKeyBindings(delta, window, camera, world);
-
-        if (renderBlockStorage){
-//            for (int i = 0; i < storageSlots.length; i++) {
-//                storageSlots[i].update(window.getInput());
-//            }
-        }
-
+        mouseX = (int) window.getInput().getMousePosition().x;
+        mouseY = (int) window.getInput().getMousePosition().y;
         super.update(delta, window, camera, world);
     }
-
-
 
     @Override
     public void render(Shader shader, Camera camera, World world) {
         super.render(shader, camera, world);
-        if (renderBlockStorage){
-            //Gui.getTextureRenderer().renderTexture(new Texture("/gui/inventory.png"), 0, 100);
-//            for (int i = 0; i < storageSlots.length; i++) {
-//                storageSlots[i].render(camera, Shader.gui);
-//            }
-        }
     }
 
     public Item getOnMouse() {
         return onMouse;
+    }
+
+    public int getMouseX() {
+        return mouseX;
+    }
+
+    public int getMouseY() {
+        return mouseY;
+    }
+
+    public Hotbar getHotbar() {
+        return hotbar;
+    }
+
+    public Inventory getInventory() {
+        return inventory;
     }
 
     public void setOnMouse(Item onMouse) {
@@ -85,45 +94,66 @@ public class Player extends Entity {
 
         if (window.getInput().isKeyPressed(GLFW_KEY_TAB)) {
             showInventory = ! showInventory;
-            renderBlockStorage = false;
+            if (renderBlockStorage){
+                renderBlockStorage = false;
+                Factory.gui.removeWidget(inventoryWidgetId);
+                inventoryWidgetId = -1;
+            }
         }
         if (window.getInput().isMouseButtonPressed(0)){
             Collision hotbarCollision = hotbar.getBoundingBox().getCollision(window.getInput().getMousePosition());
             Collision inventoryCollision = inventory.getBoundingBox().getCollision(window.getInput().getMousePosition());
             if (onMouse != null && onMouse.isTile() && !hotbarCollision.isIntersecting) {
+                Vector2i location = world.getWorldPosition(window, camera);
                 if (showInventory){
                     if (!inventoryCollision.isIntersecting){
-                        Vector2i location = world.getWorldPosition(window, camera);
-                        world.setTile(onMouse.tileOf(), location.x, location.y);
+                        if (renderBlockStorage){
+                            if (!new Inventory(opened.getSize(), new Vector2f(0, 100)).getBoundingBox().getCollision(window.getInput().getMousePosition()).isIntersecting){
+                                world.setTile(onMouse.tileOf(), location.x, location.y);
+                                onMouse = null;
+                            }
+                        } else {
+                            world.setTile(onMouse.tileOf(), location.x, location.y);
+                            onMouse = null;
+                        }
                     }
                 } else {
-                    Vector2i location = world.getWorldPosition(window, camera);
                     world.setTile(onMouse.tileOf(), location.x, location.y);
+                    onMouse = null;
                 }
             }
         }
         if (window.getInput().isMouseButtonPressed(1)){
-            Vector2i position = world.getWorldPosition(window, camera);
-            inventory.addObject(world.getTile(position.x, position.y).getItem());
-            world.removeTile(position.x, position.y);
+            if (!inventory.isFull()) {
+                Vector2i position = world.getWorldPosition(window, camera);
+                inventory.addObject(world.getTile(position.x, position.y).getItem());
+                world.removeTile(position.x, position.y);
+            } else {
+                if (!hotbar.isFull()){
+                    Vector2i position = world.getWorldPosition(window, camera);
+                    hotbar.addObject(world.getTile(position.x, position.y).getItem());
+                    world.removeTile(position.x, position.y);
+                }
+            }
         }
         if (window.getInput().isKeyPressed(GLFW_KEY_E)){
-            Vector2i position = world.getWorldPosition(window, camera);
-            if (world.getTile(position.x, position.y).haveStorage()){
-//                storageSlots = new Slot[world.getTile(position.x, position.y).getStorageSize()];
-//                for (int i = 0; i < storageSlots.length; i++) {
-//                    int x = i % 5;
-//                    int y = i / 5;
-//                    System.out.println("["+i+"]: x:"+ (-168 + (x*84))+" y:"+(142+(88*y)));
-//                    storageSlots[i] = new Slot(new Vector2f(-168 + (x*84), 100/*142+(88*y)*/), new Vector2f(32, 32));
-//                }
-                renderBlockStorage = true;
-                showInventory = true;
+            if (!renderBlockStorage) {
+                Vector2i position = world.getWorldPosition(window, camera);
+                if (world.getTile(position.x, position.y).haveStorage()) {
+                    renderBlockStorage = true;
+                    opened = world.getTileContainer(new TilePos(position.x, position.y));
+                    inventoryWidgetId = Factory.gui.insertWidget(new Inventory(opened.getSize(), new Vector2f(0, 100), opened));
+                    showInventory = true;
+                }
             }
         }
         if (window.getInput().isKeyPressed(GLFW_KEY_ESCAPE)) {
-            renderBlockStorage = false;
             showInventory = false;
+            if (renderBlockStorage){
+                renderBlockStorage = false;
+                Factory.gui.removeWidget(inventoryWidgetId);
+                inventoryWidgetId = -1;
+            }
         }
     }
 }

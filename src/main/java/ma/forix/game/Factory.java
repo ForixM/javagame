@@ -40,8 +40,8 @@ public class Factory {
     private Camera camera;
     private TileRenderer tileRenderer;
     private ItemRenderer itemRenderer;
-    private Gui gui;
-    private Player player;
+    public static Gui gui;
+    public static Player player;
 
     private ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
@@ -120,7 +120,7 @@ public class Factory {
                 gui = new Gui(window);
                 player = new Player(world, new Transform());
                 gui.insertWidget(player.getInventory());
-                gui.insertWidget(player.getInventory().getHotbar());
+                gui.insertWidget(player.getHotbar());
 
                 world.setItem(Tile.plank.getItem(), 3, 3);
                 world.setItem(Tile.plank.getItem(), 5, 3);
@@ -172,6 +172,8 @@ public class Factory {
         player.render(Shader.shader, camera, world);
 
         gui.render();
+        if (player.getOnMouse() != null)
+            Gui.getTextureRenderer().renderItem(player.getOnMouse(), player.getMouseX(), player.getMouseY());
 
         /*imGuiGlfw.newFrame();
         ImGui.newFrame();

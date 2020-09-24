@@ -56,7 +56,6 @@ public class Slot implements Widget {
     @Override
     public void update(Input input) {
         data = boundingBox.getCollision(input.getMousePosition());
-
         if (data.isIntersecting) {
             selectedState = STATE_SELECTED;
         }

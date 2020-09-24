@@ -19,13 +19,18 @@ public class Gui {
         textureRenderer = new TextureRenderer(camera, Shader.shader);
     }
 
-    public void insertWidget(Widget widget){
+    public int insertWidget(Widget widget){
         for (int i = 0; i < widgets.length; i++) {
             if (widgets[i] == null){
                 widgets[i] = widget;
-                return;
+                return i;
             }
         }
+        return -1;
+    }
+
+    public void removeWidget(int widgetId){
+        widgets[widgetId] = null;
     }
 
     public void resizeCamera(Window window){

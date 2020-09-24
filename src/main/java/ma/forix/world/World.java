@@ -1,9 +1,12 @@
 package ma.forix.world;
 
 import ma.forix.collision.AABB;
+import ma.forix.game.Factory;
 import ma.forix.item.Item;
 import ma.forix.renderer.*;
 import ma.forix.tile.Tile;
+import ma.forix.tile.TileContainer;
+import ma.forix.util.TilePos;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
@@ -17,6 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static org.lwjgl.glfw.GLFW.glfwGetCursorPos;
 
@@ -33,6 +37,8 @@ public class World {
 
     private AABB[] tile_bounding_boxes;
     private AABB[] item_bounding_boxes;
+
+    private TileContainer[] tileContainers;
 
     private SimplexNoise noise;
 
@@ -68,15 +74,12 @@ public class World {
 
                     Tile tile = null;
                     if (red == 255){
-                        System.out.println("RED!");
                         tile = Tile.grass;
                     } else
                     if (green == 255){
-                        System.out.println("GREEN!");
                         tile = Tile.stone;
                     } else
                     if (blue == 255){
-                        System.out.println("BLUE!");
                         tile = Tile.sand;
                     }
                     if (tile != null) {
@@ -86,6 +89,7 @@ public class World {
             }
 
             generateCollisions();
+            tileContainers = new TileContainer[width*height];
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -115,6 +119,7 @@ public class World {
 
         world = new Matrix4f().setTranslation(new Vector3f(0));
         world.scale(scale);
+        tileContainers = new TileContainer[width*height];
     }
 
     public void generateTerrain(){
@@ -179,20 +184,22 @@ public class World {
 
     public void setTile(Tile tile, int x, int y){
         tiles[x + y*width] = tile.getId();
-        if (tile.isSolid()){
+        if (tile.isSolid())
             tile_bounding_boxes[x + y * width] = new AABB(new Vector2f(x*2, -y*2), new Vector2f(1, 1));
-        } else {
+        else
             tile_bounding_boxes[x + y * width] = null;
+        if (tile.haveContainer()) {
+            addTileContainer((TileContainer) new TileContainer(tile.getStorageSize()).addObject(Item.stick), new TilePos(x, y));
+            System.out.println("have container at pos: x:"+x+" y:"+y);
+            System.out.println("tile.getTileContainerPos() = " + tile.getTileContainerPos());
+        } else {
+            System.out.println("havn't container");
         }
     }
 
     public void setItem(Item item, int x, int y){
         items[x + y*width] = item.getId();
-        //if (item.isSolid()){
             item_bounding_boxes[x + y * width] = new AABB(new Vector2f(x*2, -y*2), new Vector2f(1, 1));
-//        } else {
-//            item_bounding_boxes[x + y * width] = null;
-//        }
     }
 
     public void removeItem(int x, int y){
@@ -343,5 +350,27 @@ public class World {
     public void scaleUp(float increment){
         scale *= increment;
         world.scale(increment);
+    }
+
+    public TileContainer getTileContainer(TilePos tilePos){
+        if (tilePos.x < width && tilePos.y < height){
+            int key = tilePos.x*tilePos.y;
+            return tileContainers[key];
+        }
+        return null;
+    }
+
+    public void addTileContainer(TileContainer tileContainer, TilePos tilePos){
+        int key = tilePos.x*tilePos.y;
+        if (tileContainers[key] == null) {
+            //Factory.gui.insertWidget(tileContainer.getInventory());
+            tileContainers[key] = tileContainer;
+        }
+    }
+
+    public void removeTileContainer(TilePos tilePos){
+        int key = tilePos.x*tilePos.y;
+        if (tileContainers[key] != null)
+            tileContainers[key] = null;
     }
 }

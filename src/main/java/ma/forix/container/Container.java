@@ -28,14 +28,22 @@ public class Container<T extends Stockable> {
         return objects[slot];
     }
 
-    public boolean addObject(T object){
+    public Container addObject(T object){
         for (int i = 0; i < objects.length; i++) {
             if (objects[i] == null){
                 objects[i] = object;
-                return true;
+                return this;
             }
         }
-        return false;
+        return null;
+    }
+
+    public boolean isFull(){
+        for (Stockable object : objects) {
+            if (object == null)
+                return false;
+        }
+        return true;
     }
 
     public boolean removeObject(int slot){
@@ -51,8 +59,12 @@ public class Container<T extends Stockable> {
         return false;
     }
 
-    public Item[] getContent(){
-        return (Item[]) objects;
+    public Stockable[] getContent(){
+        return objects;
+    }
+
+    public void cloneContainer(Container<T> container){
+        objects = container.getContent();
     }
 
 }

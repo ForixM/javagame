@@ -2,6 +2,7 @@ package ma.forix.tile;
 
 import ma.forix.container.Container;
 import ma.forix.item.Item;
+import ma.forix.util.TilePos;
 
 public class Tile {
     public static Tile tiles[] = new Tile[255];
@@ -14,13 +15,15 @@ public class Tile {
     public static final Tile plank = new Tile("plank");
     public static final Tile sand = new Tile("sand");
     public static final Tile bedrock = new Tile("bedrock");
-    public static final Tile chest = new Tile("chest", 10);
+    public static final Tile chest = new Tile("chest", 10).setSolid().setContainer();
 
     private Container<Item> storage = null;
 
+    private TilePos tileContainerPos = null;
+
     private byte id;
     private byte itemId;
-    private boolean solid;
+    private boolean solid, container;
     private String texture;
 
     public Tile(String texture){
@@ -46,8 +49,17 @@ public class Tile {
         return this;
     }
 
+    public Tile setContainer(){
+        this.container = true;
+        return this;
+    }
+
     public boolean isSolid() {
         return solid;
+    }
+
+    public boolean haveContainer(){
+        return container;
     }
 
     public boolean haveStorage(){
@@ -81,6 +93,10 @@ public class Tile {
 
     public String getTexture() {
         return texture;
+    }
+
+    public TilePos getTileContainerPos() {
+        return tileContainerPos;
     }
 
     @Override
