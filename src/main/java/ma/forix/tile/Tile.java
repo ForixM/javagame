@@ -99,6 +99,10 @@ public class Tile {
         return tileContainerPos;
     }
 
+    public boolean compare(Tile tile){
+        return tile.getId() == this.id;
+    }
+
     @Override
     public String toString() {
         return "Tile{" +

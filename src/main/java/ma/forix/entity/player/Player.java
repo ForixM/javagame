@@ -4,10 +4,9 @@ import ma.forix.collision.Collision;
 import ma.forix.entity.Entity;
 import ma.forix.entity.Inventory;
 import ma.forix.game.Factory;
-import ma.forix.gui.Gui;
-import ma.forix.gui.Slot;
 import ma.forix.item.Item;
 import ma.forix.renderer.*;
+import ma.forix.tile.Tile;
 import ma.forix.tile.TileContainer;
 import ma.forix.util.TilePos;
 import ma.forix.util.Transform;
@@ -105,21 +104,41 @@ public class Player extends Entity {
             Collision inventoryCollision = inventory.getBoundingBox().getCollision(window.getInput().getMousePosition());
             if (onMouse != null && onMouse.isTile() && !hotbarCollision.isIntersecting) {
                 Vector2i location = world.getWorldPosition(window, camera);
-                if (showInventory){
-                    if (!inventoryCollision.isIntersecting){
-                        if (renderBlockStorage){
-                            if (!new Inventory(opened.getSize(), new Vector2f(0, 100)).getBoundingBox().getCollision(window.getInput().getMousePosition()).isIntersecting){
+                if (!world.getTile(location.x, location.y).compare(onMouse.tileOf())) {
+                    if (showInventory) {
+                        if (!inventoryCollision.isIntersecting) {
+                            if (renderBlockStorage) {
+                                if (!new Inventory(opened.getSize(), new Vector2f(0, 100)).getBoundingBox().getCollision(window.getInput().getMousePosition()).isIntersecting) {
+                                    if(!world.getTile(location.x, location.y).compare(Tile.bedrock)){
+                                        inventory.addObject(world.getTile(location.x, location.y).getItem());
+                                    }
+                                    world.setTile(onMouse.tileOf(), location.x, location.y);
+                                    if (inventory.haveObject(onMouse)){
+                                        inventory.removeFirstItem(onMouse);
+                                    } else
+                                        onMouse = null;
+                                }
+                            } else {
+                                if(!world.getTile(location.x, location.y).compare(Tile.bedrock)){
+                                    inventory.addObject(world.getTile(location.x, location.y).getItem());
+                                }
                                 world.setTile(onMouse.tileOf(), location.x, location.y);
-                                onMouse = null;
+                                if (inventory.haveObject(onMouse)){
+                                    inventory.removeFirstItem(onMouse);
+                                } else
+                                    onMouse = null;
                             }
-                        } else {
-                            world.setTile(onMouse.tileOf(), location.x, location.y);
-                            onMouse = null;
                         }
+                    } else {
+                        if(!world.getTile(location.x, location.y).compare(Tile.bedrock)){
+                            inventory.addObject(world.getTile(location.x, location.y).getItem());
+                        }
+                        world.setTile(onMouse.tileOf(), location.x, location.y);
+                        if (inventory.haveObject(onMouse)){
+                            inventory.removeFirstItem(onMouse);
+                        } else
+                            onMouse = null;
                     }
-                } else {
-                    world.setTile(onMouse.tileOf(), location.x, location.y);
-                    onMouse = null;
                 }
             }
         }

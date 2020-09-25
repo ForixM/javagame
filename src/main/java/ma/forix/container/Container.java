@@ -63,6 +63,29 @@ public class Container<T extends Stockable> {
         return objects;
     }
 
+    public void removeFirstItem(Item item){
+        for (int i = 0; i < objects.length; i++) {
+            System.out.println("i = " + i);
+            if (objects[i] != null) {
+                if (((Item) objects[i]).compare(item)) {
+                    objects[i] = null;
+                    return;
+                }
+            }
+        }
+    }
+
+    public boolean haveObject(Item item){
+        for (Stockable object : objects) {
+            if (object != null) {
+                if (((Item) object).compare(item)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public void cloneContainer(Container<T> container){
         objects = container.getContent();
     }

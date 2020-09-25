@@ -57,6 +57,10 @@ public class Item extends Stockable {
         return id;
     }
 
+    public boolean compare(Item item){
+        return item.getId() == this.id;
+    }
+
     public String getTexture() {
         if (isTile){
             return texture;
