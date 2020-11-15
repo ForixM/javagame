@@ -1,8 +1,9 @@
-package ma.forix.gui;
+package ma.forix.gui.widgets;
 
 import ma.forix.assets.Assets;
 import ma.forix.collision.AABB;
 import ma.forix.collision.Collision;
+import ma.forix.gui.Widget;
 import ma.forix.renderer.Camera;
 import ma.forix.renderer.Shader;
 import ma.forix.renderer.TileSheet;
@@ -19,26 +20,36 @@ public class Button implements Widget {
 
     private AABB boundingBox;
 
-    private int selectedState;
+    public int selectedState;
+
+    public boolean activated = true;
 
     private Matrix4f transform = new Matrix4f();
 
-    public Button(Vector2f position, Vector2f scale, TileSheet tileSheet){
+    public Button(Vector2f position, Vector2f scale){
         this.boundingBox = new AABB(position, scale);
-        this.tileSheet = tileSheet;
+        this.tileSheet = new TileSheet("tilesheet.png", 6);
     }
 
     public void update(Input input){
-        Collision data = boundingBox.getCollision(input.getMousePosition());
+        if (activated) {
+            Collision data = boundingBox.getCollision(input.getMousePosition());
 
-        if (data.isIntersecting) {
-            selectedState = STATE_SELECTED;
+            if (data.isIntersecting) {
+                selectedState = STATE_SELECTED;
 
-            if (input.isMouseButtonDown(0)) {
-                selectedState = STATE_CLICKED;
-            }
+                if (input.isMouseButtonDown(0)) {
+                    selectedState = STATE_CLICKED;
+                }
+            } else selectedState = STATE_IDLE;
         }
-        else selectedState = STATE_IDLE;
+    }
+
+    @Override
+    public void onMouseClicked(int mouseButton) {
+        if (mouseButton == 0 && activated){
+            selectedState = STATE_CLICKED;
+        }
     }
 
     @Override
@@ -63,6 +74,11 @@ public class Button implements Widget {
 
         renderSides(position, scale, camera, tileSheet, shader);
         renderCorners(position, scale, camera, tileSheet, shader);
+    }
+
+    @Override
+    public AABB getBoundingBox() {
+        return boundingBox;
     }
 
     private void renderSides(Vector2f position, Vector2f scale, Camera camera, TileSheet tileSheet, Shader shader){

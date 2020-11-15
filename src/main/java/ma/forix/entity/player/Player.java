@@ -8,6 +8,7 @@ import ma.forix.item.Item;
 import ma.forix.renderer.*;
 import ma.forix.tile.Tile;
 import ma.forix.tile.TileContainer;
+import ma.forix.tile.tilentities.TileEntity;
 import ma.forix.util.TilePos;
 import ma.forix.util.Transform;
 import ma.forix.world.World;
@@ -29,7 +30,7 @@ public class Player extends Entity {
     private int mouseX, mouseY;
 
     public Player(World world, Transform transform) {
-        super(world, new Texture("bg.png"), transform);
+        super(world, new Texture("player.png"), transform);
         inventory = new Inventory(10, this, new Vector2f(0, 0), getContainer());
         hotbar = new Hotbar(5, this, new Texture("/gui/hotbar.png"));
     }
@@ -75,8 +76,16 @@ public class Player extends Entity {
         return showInventory;
     }
 
+    public void showInventory(boolean show){
+        this.showInventory = show;
+    }
+
     public boolean isRenderBlockStorage() {
         return renderBlockStorage;
+    }
+
+    public TileContainer getOpened(){
+        return opened;
     }
 
     private void processKeyBindings(float delta, Window window, Camera camera, World world){
@@ -146,11 +155,13 @@ public class Player extends Entity {
             if (!inventory.isFull()) {
                 Vector2i position = world.getWorldPosition(window, camera);
                 inventory.addObject(world.getTile(position.x, position.y).getItem());
+                world.getTile(position.x, position.y).destroy(world, new TilePos(position.x, position.y));
                 world.removeTile(position.x, position.y);
             } else {
                 if (!hotbar.isFull()){
                     Vector2i position = world.getWorldPosition(window, camera);
                     hotbar.addObject(world.getTile(position.x, position.y).getItem());
+                    world.getTile(position.x, position.y).destroy(world, new TilePos(position.x, position.y));
                     world.removeTile(position.x, position.y);
                 }
             }
@@ -164,6 +175,10 @@ public class Player extends Entity {
                     inventoryWidgetId = Factory.gui.insertWidget(new Inventory(opened.getSize(), new Vector2f(0, 100), opened));
                     showInventory = true;
                 }
+                TileEntity tileEntity = world.getTileEntity(new TilePos(position.x, position.y));
+                if (tileEntity != null){
+                    tileEntity.interact();
+                }
             }
         }
         if (window.getInput().isKeyPressed(GLFW_KEY_ESCAPE)) {
@@ -173,6 +188,7 @@ public class Player extends Entity {
                 Factory.gui.removeWidget(inventoryWidgetId);
                 inventoryWidgetId = -1;
             }
+            Factory.displayCustomScreen(null);
         }
     }
 }

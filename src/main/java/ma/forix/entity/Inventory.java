@@ -6,6 +6,7 @@ import ma.forix.container.Container;
 import ma.forix.entity.player.Player;
 import ma.forix.game.Factory;
 import ma.forix.gui.*;
+import ma.forix.gui.widgets.Slot;
 import ma.forix.item.Item;
 import ma.forix.renderer.*;
 import ma.forix.util.Input;
@@ -112,9 +113,12 @@ public class Inventory extends Container<Item> implements Widget {
                         if (input.isMouseButtonPressed(0)) {
                             if (getObject(i) != null) {
                                 item = (Item)getObject(i);
-                                if (input.isKeyDown(GLFW_KEY_LEFT_SHIFT))
-                                    player.getHotbar().addObject(item);
-                                else
+                                if (input.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+                                    if (player.isRenderBlockStorage()){
+                                        player.getOpened().addObject(item);
+                                    } else
+                                        player.getHotbar().addObject(item);
+                                } else
                                     player.setOnMouse(item);
                                 removeObject(i);
                             } else {
@@ -153,6 +157,11 @@ public class Inventory extends Container<Item> implements Widget {
                 }
             }
         }*/
+    }
+
+    @Override
+    public void onMouseClicked(int mouseButton) {
+
     }
 
     public void closeInventory(){

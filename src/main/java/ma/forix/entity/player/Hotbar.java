@@ -4,7 +4,7 @@ import ma.forix.collision.AABB;
 import ma.forix.collision.Collision;
 import ma.forix.container.Container;
 import ma.forix.gui.Gui;
-import ma.forix.gui.Slot;
+import ma.forix.gui.widgets.Slot;
 import ma.forix.gui.Widget;
 import ma.forix.item.Item;
 import ma.forix.renderer.Camera;
@@ -76,6 +76,11 @@ public class Hotbar extends Container<Item> implements Widget {
                 }
             }
         }
+    }
+
+    @Override
+    public void onMouseClicked(int mouseButton) {
+
     }
 
     public Item extractItemOnSlot(Vector2f mousePosition){

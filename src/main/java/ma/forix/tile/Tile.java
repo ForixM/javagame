@@ -2,7 +2,10 @@ package ma.forix.tile;
 
 import ma.forix.container.Container;
 import ma.forix.item.Item;
+import ma.forix.tile.tilentities.TileEntity;
+import ma.forix.tile.tilentities.Workbench;
 import ma.forix.util.TilePos;
+import ma.forix.world.World;
 
 public class Tile {
     public static Tile tiles[] = new Tile[255];
@@ -13,9 +16,12 @@ public class Tile {
     public static final Tile stone = new Tile("stone");
     public static final Tile water = new Tile("water").setSolid();
     public static final Tile plank = new Tile("plank");
+    public static final Tile log = new Tile("log");
     public static final Tile sand = new Tile("sand");
     public static final Tile bedrock = new Tile("bedrock");
     public static final Tile chest = new Tile("chest", 10).setSolid().setContainer();
+
+    public static final Tile workbench = new Workbench("workbench").setSolid();
 
     private Container<Item> storage = null;
 
@@ -37,6 +43,10 @@ public class Tile {
         }
         tiles[id] = this;
         this.itemId = Item.generateItemFromTile(this);
+    }
+
+    public TileEntity createTileEntity(){
+        return null;
     }
 
     public Tile(String texture, int storageSize){
@@ -101,6 +111,10 @@ public class Tile {
 
     public boolean compare(Tile tile){
         return tile.getId() == this.id;
+    }
+
+    public void destroy(World world, TilePos tilePos){
+
     }
 
     @Override

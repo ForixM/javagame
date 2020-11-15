@@ -39,8 +39,6 @@ public class Window {
             System.err.println("GLFW Failed to initialize !");
             System.exit(1);
         }
-
-
         setSize(width, height);
         setFullscreen(fullscreen);
     }

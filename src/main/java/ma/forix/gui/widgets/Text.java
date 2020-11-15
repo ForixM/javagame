@@ -1,6 +1,8 @@
-package ma.forix.gui;
+package ma.forix.gui.widgets;
 
 import ma.forix.assets.Assets;
+import ma.forix.collision.AABB;
+import ma.forix.gui.Widget;
 import ma.forix.renderer.Camera;
 import ma.forix.renderer.Shader;
 import ma.forix.renderer.TileSheet;
@@ -74,5 +76,15 @@ public class Text implements Widget {
     @Override
     public void update(Input input) {
 
+    }
+
+    @Override
+    public void onMouseClicked(int mouseButton) {
+
+    }
+
+    @Override
+    public AABB getBoundingBox() {
+        return null;
     }
 }

@@ -1,8 +1,9 @@
-package ma.forix.gui;
+package ma.forix.gui.widgets;
 
 import ma.forix.assets.Assets;
 import ma.forix.collision.AABB;
 import ma.forix.collision.Collision;
+import ma.forix.gui.Widget;
 import ma.forix.item.Item;
 import ma.forix.renderer.Camera;
 import ma.forix.renderer.Shader;
@@ -62,6 +63,11 @@ public class Slot implements Widget {
         else selectedState = STATE_IDLE;
     }
 
+    @Override
+    public void onMouseClicked(int mouseButton) {
+
+    }
+
     public void setItem(Item item){
         this.item = item;
     }
@@ -74,6 +80,7 @@ public class Slot implements Widget {
         return item;
     }
 
+    @Override
     public AABB getBoundingBox() {
         return boundingBox;
     }

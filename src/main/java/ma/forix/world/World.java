@@ -6,6 +6,7 @@ import ma.forix.item.Item;
 import ma.forix.renderer.*;
 import ma.forix.tile.Tile;
 import ma.forix.tile.TileContainer;
+import ma.forix.tile.tilentities.TileEntity;
 import ma.forix.util.TilePos;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -19,8 +20,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.glfwGetCursorPos;
 
@@ -38,6 +41,7 @@ public class World {
     private AABB[] tile_bounding_boxes;
     private AABB[] item_bounding_boxes;
 
+    private TileEntity[] tileEntities;
     private TileContainer[] tileContainers;
 
     private SimplexNoise noise;
@@ -120,6 +124,7 @@ public class World {
         world = new Matrix4f().setTranslation(new Vector3f(0));
         world.scale(scale);
         tileContainers = new TileContainer[width*height];
+        tileEntities = new TileEntity[width*height];
     }
 
     public void generateTerrain(){
@@ -195,6 +200,7 @@ public class World {
         } else {
             System.out.println("havn't container");
         }
+        addTileEntity(tile.createTileEntity(), new TilePos(x, y));
     }
 
     public void setItem(Item item, int x, int y){
@@ -345,6 +351,7 @@ public class World {
 
     public void removeTile(int x, int y){
         setTile(Tile.bedrock, x, y);
+        removeTileEntity(new TilePos(x, y));
     }
 
     public void scaleUp(float increment){
@@ -372,5 +379,41 @@ public class World {
         int key = tilePos.x*tilePos.y;
         if (tileContainers[key] != null)
             tileContainers[key] = null;
+    }
+
+    public TileEntity getTileEntity(TilePos tilePos){
+        if (tilePos.x < width && tilePos.y < height){
+            int key = tilePos.x+tilePos.y*width;
+            return tileEntities[key];
+        }
+        return null;
+    }
+
+    public void addTileEntity(TileEntity tileEntity, TilePos tilePos){
+        int key = tilePos.x+tilePos.y*width;
+        System.out.println("key = " + key);
+        System.out.println("tilePos.x = " + tilePos.x);
+        System.out.println("tilePos.y = " + tilePos.y);
+        if (tileEntities[key] == null) {
+            tileEntities[key] = tileEntity;
+        }
+    }
+
+    public void removeTileEntity(TilePos tilePos){
+        int key = tilePos.x+tilePos.y*width;
+        if (tileEntities[key] != null)
+            tileEntities[key] = null;
+    }
+
+    public TileEntity[] getTileEntities() {
+        return tileEntities;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }

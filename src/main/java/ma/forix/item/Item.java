@@ -4,7 +4,7 @@ import ma.forix.container.Stockable;
 import ma.forix.tile.Tile;
 
 public class Item extends Stockable {
-    public static Item[] items = new Item[16];
+    public static Item[] items = new Item[256];
     public static byte idCounter;
 
     public static Item stick = new Item("stick").setSolid();

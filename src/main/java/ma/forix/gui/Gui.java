@@ -1,5 +1,6 @@
 package ma.forix.gui;
 
+import ma.forix.collision.Collision;
 import ma.forix.renderer.Camera;
 import ma.forix.renderer.Shader;
 import ma.forix.renderer.Window;
@@ -38,18 +39,29 @@ public class Gui {
     }
 
     public void update(Input input) {
-        for (int i = 0; i < widgets.length; i++) {
-            if (widgets[i] != null){
-                widgets[i].update(input);
+        for (Widget widget : widgets) {
+            if (widget != null) {
+                widget.update(input);
+                Collision data = widget.getBoundingBox().getCollision(input.getMousePosition());
+
+                if (data.isIntersecting) {
+                    if (input.isMouseButtonDown(0)) {
+                        widget.onMouseClicked(0);
+                    } else if (input.isMouseButtonDown(1)) {
+                        widget.onMouseClicked(1);
+                    } else if (input.isMouseButtonDown(2)) {
+                        widget.onMouseClicked(2);
+                    }
+                }
             }
         }
     }
 
     public void render(){
-        for (int i = 0; i < widgets.length; i++) {
-            if (widgets[i] != null){
+        for (Widget widget : widgets) {
+            if (widget != null) {
                 Shader.guiTex.bind();
-                widgets[i].render(camera, Shader.guiTex);
+                widget.render(camera, Shader.guiTex);
             }
         }
     }

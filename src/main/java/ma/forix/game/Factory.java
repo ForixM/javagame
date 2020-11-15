@@ -2,26 +2,27 @@ package ma.forix.game;
 
 import imgui.*;
 import imgui.flag.ImGuiCol;
-import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import ma.forix.assets.Assets;
 import ma.forix.entity.player.Player;
+import ma.forix.gui.CustomScreen;
 import ma.forix.gui.Gui;
-import ma.forix.gui.Text;
+import ma.forix.gui.widgets.Text;
+import ma.forix.item.Item;
 import ma.forix.renderer.*;
 import ma.forix.tile.Tile;
+import ma.forix.tile.tilentities.ITickableEntity;
+import ma.forix.tile.tilentities.TileEntity;
+import ma.forix.util.TilePos;
 import ma.forix.util.Timer;
 import ma.forix.util.Transform;
 import ma.forix.world.World;
-import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 public class Factory {
 
     private Thread mainGameThread;
+    private Thread tickWorld;
 
     private Window window;
     private World world;
@@ -42,10 +44,15 @@ public class Factory {
     private ItemRenderer itemRenderer;
     public static Gui gui;
     public static Player player;
+    private static Factory factory;
 
     private ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
     private Text text;
+    private static CustomScreen customScreen;
+
+    private static List<ITickableEntity> tickableEntities;
+
 
     public static void main(String[] args) {
         new Factory();
@@ -101,7 +108,7 @@ public class Factory {
     }
 
     public Factory(){
-        mainGameThread = new Thread(){
+        mainGameThread = new Thread("Main Game Thread"){
             @Override
             public void run() {
                 super.run();
@@ -122,18 +129,20 @@ public class Factory {
                 gui.insertWidget(player.getInventory());
                 gui.insertWidget(player.getHotbar());
 
-                world.setItem(Tile.plank.getItem(), 3, 3);
+                world.setItem(Tile.log.getItem(), 3, 3);
                 world.setItem(Tile.plank.getItem(), 5, 3);
-                world.setItem(Tile.plank.getItem(), 15, 3);
+                world.setItem(Tile.log.getItem(), 15, 3);
                 world.setItem(Tile.bedrock.getItem(), 10, 5);
 
 
+                player.getInventory().addObject(Tile.workbench.getItem());
                 int fps = 144;
                 int frames = 0;
                 double frameTime = 1.0/(double)fps;
                 double time = Timer.getTime();
                 double passed = 0;
 
+                tickWorld.start();
                 while (!window.shouldClose()) {
                     while (Timer.getTime()-time < frameTime){
                         if (passed>=1.0){
@@ -152,7 +161,40 @@ public class Factory {
                 glfwTerminate();
             }
         };
+
+        tickWorld = new Thread("World Tick Thread"){
+            @Override
+            public void run() {
+                super.run();
+                tickableEntities = new ArrayList<>();
+                while (!window.shouldClose()){
+                    try {
+                        for (TileEntity tileEntity : world.getTileEntities()){
+                            if (tileEntity != null)
+                                tileEntity.tick();
+                        }
+                        sleep(1000/20);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
         mainGameThread.start();
+        factory = this;
+    }
+
+    public static void registerTickableEntity(ITickableEntity tickableEntity){
+        tickableEntities.add(tickableEntity);
+    }
+
+    public static void removeTickableEntity(ITickableEntity tickableEntity){
+        tickableEntities.remove(tickableEntity);
+    }
+
+    public static void displayCustomScreen(CustomScreen screen){
+        Factory.customScreen = screen;
     }
 
     private void update(double frameTime){
@@ -160,6 +202,10 @@ public class Factory {
         player.update((float) frameTime, window, camera, world);
         world.correctCamera(camera, window);
         gui.update(window.getInput());
+        if (customScreen != null) {
+            customScreen.update(window.getInput());
+            customScreen.onMouseClicked(window.getInput());
+        }
     }
 
     private void render(){
@@ -172,6 +218,8 @@ public class Factory {
         player.render(Shader.shader, camera, world);
 
         gui.render();
+        if (customScreen != null)
+            customScreen.draw();
         if (player.getOnMouse() != null)
             Gui.getTextureRenderer().renderItem(player.getOnMouse(), player.getMouseX(), player.getMouseY());
 
@@ -243,5 +291,13 @@ public class Factory {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
         return textureID;
+    }
+
+    public Window getWindow() {
+        return window;
+    }
+
+    public static Factory getInstance(){
+        return factory;
     }
 }
