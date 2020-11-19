@@ -2,6 +2,7 @@ package ma.forix.gui;
 
 import ma.forix.assets.Assets;
 import ma.forix.item.Item;
+import ma.forix.item.ItemStack;
 import ma.forix.renderer.Camera;
 import ma.forix.renderer.Shader;
 import ma.forix.renderer.Texture;
@@ -19,7 +20,7 @@ public class TextureRenderer {
     }
 
     public void renderTexture(Texture texture, int x, int y, int width, int height){
-        transform = new Matrix4f().identity().translate(x, y, 0).scaleXY(texture.getWidth()*width, texture.getHeight()*height);
+        transform = new Matrix4f().identity().translate(x, y, 0).scaleXY(texture.getWidth() * width, texture.getHeight() * height);
         shader.bind();
         texture.bind(0);
         shader.setUniform("sampler", 0);
@@ -35,8 +36,8 @@ public class TextureRenderer {
         renderTexture(texture, x, y, scale, scale);
     }
 
-    public void renderItem(Item item, int x, int y){
-        Texture texture = new Texture(item.getTexture()+".png");
+    public void renderItem(ItemStack itemStack, int x, int y){
+        Texture texture = new Texture(itemStack.getItem().getTexture()+".png");
         renderTexture(texture, x, y, 1, 1);
     }
 }

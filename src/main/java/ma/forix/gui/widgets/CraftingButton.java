@@ -3,12 +3,15 @@ package ma.forix.gui.widgets;
 import ma.forix.entity.player.Player;
 import ma.forix.game.Factory;
 import ma.forix.item.Item;
+import ma.forix.item.ItemStack;
 import ma.forix.renderer.Camera;
 import ma.forix.renderer.Shader;
 import ma.forix.renderer.TileSheet;
 import ma.forix.util.CraftingRecipe;
 import ma.forix.util.Input;
 import org.joml.Vector2f;
+
+import java.util.Arrays;
 
 public class CraftingButton extends Button {
 
@@ -41,13 +44,24 @@ public class CraftingButton extends Button {
     }
 
     @Override
-    public void onMouseClicked(int mouseButton) {
-        super.onMouseClicked(mouseButton);
+    public void onMouseClicked() {
+        super.onMouseClicked();
         Player player = Factory.player;
-        for (Item item : recipe.getIngredients()){
-            if (item != null)
-                player.getInventory().removeFirstItem(item);
+        for (ItemStack itemStack : recipe.getIngredients()){
+            if (itemStack != null) {
+                boolean haveItem = false;
+                for (ItemStack containerItem : player.getContainer().getContent()){
+                    if (containerItem != null) {
+                        if (itemStack.getItem().getId() == containerItem.getItem().getId()) {
+                            haveItem = true;
+                        }
+                    }
+                }
+                if (!haveItem)
+                    return;
+            }
         }
+        Arrays.stream(recipe.getIngredients()).forEach(itemStack -> {if (itemStack != null) player.getInventory().removeFirstItem(itemStack);});
         player.getInventory().addObject(recipe.getResult());
     }
 }

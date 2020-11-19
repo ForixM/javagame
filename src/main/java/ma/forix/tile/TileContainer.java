@@ -10,7 +10,7 @@ import ma.forix.renderer.Shader;
 import ma.forix.util.Input;
 import org.joml.Vector2f;
 
-public class TileContainer extends Container<Item> {
+public class TileContainer extends Container {
 
     private Inventory inventory;
 

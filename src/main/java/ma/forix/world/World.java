@@ -193,14 +193,18 @@ public class World {
             tile_bounding_boxes[x + y * width] = new AABB(new Vector2f(x*2, -y*2), new Vector2f(1, 1));
         else
             tile_bounding_boxes[x + y * width] = null;
-        if (tile.haveContainer()) {
+        /*if (tile.haveContainer()) {
             addTileContainer((TileContainer) new TileContainer(tile.getStorageSize()).addObject(Item.stick), new TilePos(x, y));
             System.out.println("have container at pos: x:"+x+" y:"+y);
             System.out.println("tile.getTileContainerPos() = " + tile.getTileContainerPos());
         } else {
             System.out.println("havn't container");
-        }
+        }*/
         addTileEntity(tile.createTileEntity(), new TilePos(x, y));
+    }
+
+    public void setTile(Tile tile, TilePos tilePos){
+        setTile(tile, tilePos.x, tilePos.y);
     }
 
     public void setItem(Item item, int x, int y){
@@ -295,6 +299,14 @@ public class World {
         }
     }
 
+    public Tile getTile(TilePos tilePos){
+        try {
+            return Tile.tiles[tiles[tilePos.x+tilePos.y*width]];
+        } catch (ArrayIndexOutOfBoundsException e){
+            return null;
+        }
+    }
+
     public Item getItem(int x, int y){
         try {
             return Item.items[items[x + y * width]];
@@ -335,7 +347,21 @@ public class World {
         return world;
     }
 
-    public Vector2i getWorldPosition(Window win, Camera camera){
+//    public Vector2i getWorldPosition(Window win, Camera camera){
+//        DoubleBuffer posX = BufferUtils.createDoubleBuffer(1);
+//        DoubleBuffer posY = BufferUtils.createDoubleBuffer(1);
+//        int scale = getScale()*2;
+//        glfwGetCursorPos(win.getWindow(), posX, posY);
+//        Vector2f viewPort = correctViewPort(new Vector2f(0, 0), win);
+//        Vector2f posCam = new Vector2f(Math.abs(camera.getPosition().x+Math.abs(viewPort.x))/scale, Math.abs(camera.getPosition().y-Math.abs(viewPort.y))/scale);
+//        int excessX = (int) (Math.abs(camera.getPosition().x+608)%scale);
+//        int excessY = (int) (Math.abs(camera.getPosition().y-328)%scale);
+//        int x = (int) ((posX.get()+excessX)/scale);
+//        int y = (int) ((posY.get()+excessY)/scale);
+//        return new Vector2i((int)posCam.x+x, (int)posCam.y+y);
+//    }
+
+    public TilePos getWorldPosition(Window win, Camera camera){
         DoubleBuffer posX = BufferUtils.createDoubleBuffer(1);
         DoubleBuffer posY = BufferUtils.createDoubleBuffer(1);
         int scale = getScale()*2;
@@ -346,7 +372,7 @@ public class World {
         int excessY = (int) (Math.abs(camera.getPosition().y-328)%scale);
         int x = (int) ((posX.get()+excessX)/scale);
         int y = (int) ((posY.get()+excessY)/scale);
-        return new Vector2i((int)posCam.x+x, (int)posCam.y+y);
+        return new TilePos((int)posCam.x+x, (int)posCam.y+y);
     }
 
     public void removeTile(int x, int y){

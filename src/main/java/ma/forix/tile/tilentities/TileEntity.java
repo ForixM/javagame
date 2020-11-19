@@ -7,7 +7,9 @@ import ma.forix.item.Item;
 public abstract class TileEntity implements ITickableEntity {
     public abstract void update();
     public abstract void interact();
-    public Container<Item> createContainer(){
+    private Container container = null;
+
+    public Container createContainer(){
         return null;
     }
 

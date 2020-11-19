@@ -33,6 +33,20 @@ public class Input {
         return (isKeyDown(key) && !keys[key]);
     }
 
+    public boolean isAnyKeyDown(){
+        for (int i = 32; i < GLFW_KEY_LAST; i++){
+            if (isKeyDown(i)) return true;
+        }
+        return false;
+    }
+
+    public boolean isAnyKeyPressed(){
+        for (int i = 32; i < GLFW_KEY_LAST; i++){
+            if (isKeyPressed(i)) return true;
+        }
+        return false;
+    }
+
     public boolean isMouseButtonPressed(int button){
         return (isMouseButtonDown(button) && !mouse[button]);
     }
@@ -43,6 +57,20 @@ public class Input {
 
     public boolean isMouseButtonDown(int button){
         return glfwGetMouseButton(window, button) == 1;
+    }
+
+    public boolean isAnyMouseButtonDown(){
+        for (int i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++){
+            if (isMouseButtonDown(i)) return true;
+        }
+        return false;
+    }
+
+    public boolean isAnyMouseButtonPressed(){
+        for (int i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++){
+            if (isMouseButtonPressed(i)) return true;
+        }
+        return false;
     }
 
     public Vector2f getMousePosition() {

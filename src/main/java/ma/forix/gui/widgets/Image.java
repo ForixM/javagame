@@ -39,7 +39,12 @@ public class Image implements Widget {
     }
 
     @Override
-    public void onMouseClicked(int mouseButton) {
+    public void onMouseClicked() {
+
+    }
+
+    @Override
+    public void onKeyPressed() {
 
     }
 

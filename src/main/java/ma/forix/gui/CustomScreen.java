@@ -2,10 +2,12 @@ package ma.forix.gui;
 
 import ma.forix.collision.Collision;
 import ma.forix.game.Factory;
+import ma.forix.gui.widgets.Slot;
 import ma.forix.renderer.Camera;
 import ma.forix.renderer.Shader;
 import ma.forix.renderer.Window;
 import ma.forix.util.Input;
+import org.joml.Vector2f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +28,13 @@ public abstract class CustomScreen {
     public void draw(){
         for (Widget widget : widgets){
             if (widget != null) {
-                Shader.guiTex.bind();
-                widget.render(camera, Shader.guiTex);
+                if (widget instanceof Slot){
+                    Shader.gui.bind();
+                    widget.render(camera, Shader.gui);
+                } else {
+                    Shader.guiTex.bind();
+                    widget.render(camera, Shader.guiTex);
+                }
             }
         }
     }
@@ -38,12 +45,13 @@ public abstract class CustomScreen {
                 widget.update(input);
                 Collision data = widget.getBoundingBox().getCollision(input.getMousePosition());
                 if (data.isIntersecting) {
-                    if (input.isMouseButtonPressed(0)) {
-                        widget.onMouseClicked(0);
-                    } else if (input.isMouseButtonPressed(1)) {
-                        widget.onMouseClicked(1);
-                    } else if (input.isMouseButtonPressed(2)) {
-                        widget.onMouseClicked(2);
+                    if (input.isAnyMouseButtonPressed()){
+                        widget.onMouseClicked();
+                        onMouseClicked(widget);
+                    }
+                    if (input.isAnyKeyPressed()){
+                        widget.onKeyPressed();
+                        onKeyPressed(widget);
                     }
                 }
             }
@@ -54,7 +62,21 @@ public abstract class CustomScreen {
         widgets.add(widget);
     }
 
-    public boolean onMouseClicked(Input input){
-        return input.isMouseButtonDown(0) || input.isMouseButtonDown(1) || input.isMouseButtonDown(2);
+    public void onMouseClicked(Widget widget){
+
+    }
+
+    public void onKeyPressed(Widget widget){
+
+    }
+
+    public boolean isIntersecting(Vector2f mousePosition){
+        for (Widget widget : widgets) {
+            Collision data = widget.getBoundingBox().getCollision(mousePosition);
+            if (data.isIntersecting){
+                return true;
+            }
+        }
+        return false;
     }
 }

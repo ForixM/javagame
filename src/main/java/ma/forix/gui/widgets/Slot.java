@@ -3,8 +3,10 @@ package ma.forix.gui.widgets;
 import ma.forix.assets.Assets;
 import ma.forix.collision.AABB;
 import ma.forix.collision.Collision;
+import ma.forix.game.Factory;
 import ma.forix.gui.Widget;
 import ma.forix.item.Item;
+import ma.forix.item.ItemStack;
 import ma.forix.renderer.Camera;
 import ma.forix.renderer.Shader;
 import ma.forix.util.Input;
@@ -18,17 +20,20 @@ public class Slot implements Widget {
 
     private int selectedState;
 
-    private Item item;
+    private ItemStack itemStack;
 
-    private AABB boundingBox;
+    private final AABB boundingBox;
 
-    public Slot(Vector2f position, Vector2f scale){
-        this(position, scale, null);
+    private int id;
+
+    public Slot(Vector2f position, Vector2f scale, int id){
+        this(position, scale, null, id);
     }
 
-    public Slot(Vector2f position, Vector2f scale, Item item){
+    public Slot(Vector2f position, Vector2f scale, ItemStack itemStack, int id){
         this.boundingBox = new AABB(position, scale);
-        this.item = item;
+        this.itemStack = itemStack;
+        this.id = id;
     }
 
     private Matrix4f transform;
@@ -64,20 +69,32 @@ public class Slot implements Widget {
     }
 
     @Override
-    public void onMouseClicked(int mouseButton) {
+    public void onMouseClicked() {
+        //Factory.player.setOnMouse(item);
+        //deleteItem();
+        System.out.println("oui");
+    }
+
+    @Override
+    public void onKeyPressed() {
 
     }
 
-    public void setItem(Item item){
-        this.item = item;
+    public Slot setItem(ItemStack itemStack){
+        this.itemStack = itemStack;
+        return this;
     }
 
     public void deleteItem(){
-        this.item = null;
+        this.itemStack = null;
     }
 
-    public Item getItem() {
-        return item;
+    public ItemStack getItem() {
+        return itemStack;
+    }
+
+    public int getId() {
+        return id;
     }
 
     @Override
@@ -88,4 +105,5 @@ public class Slot implements Widget {
     public void setPosition(Vector2f position) {
         this.boundingBox.setCenter(position);
     }
+
 }

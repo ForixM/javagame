@@ -22,11 +22,8 @@ public class Shader {
     private int vs;
     private int fs;
 
-    private FloatBuffer theBuffer;
-
     public Shader(String filename){
         program = glCreateProgram();
-        theBuffer = BufferUtils.createFloatBuffer(16);
 
         vs = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vs, readFile(filename+".vs"));
@@ -84,9 +81,11 @@ public class Shader {
             glUniform4f(location, value.x, value.y, value.z, value.w);
     }
 
+
+    FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+
     public void setUniform(String name, Matrix4f value){
         int location = glGetUniformLocation(program, name);
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
         value.get(buffer);
         if (location != -1)
             glUniformMatrix4fv(location, false, buffer);

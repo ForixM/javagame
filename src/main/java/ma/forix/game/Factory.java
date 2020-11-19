@@ -11,6 +11,7 @@ import ma.forix.gui.CustomScreen;
 import ma.forix.gui.Gui;
 import ma.forix.gui.widgets.Text;
 import ma.forix.item.Item;
+import ma.forix.item.ItemStack;
 import ma.forix.renderer.*;
 import ma.forix.tile.Tile;
 import ma.forix.tile.tilentities.ITickableEntity;
@@ -135,8 +136,8 @@ public class Factory {
                 world.setItem(Tile.bedrock.getItem(), 10, 5);
 
 
-                player.getInventory().addObject(Tile.workbench.getItem());
-                int fps = 144;
+                player.getInventory().addObject(new ItemStack(Tile.workbench.getItem(), 1));
+                int fps = 30;
                 int frames = 0;
                 double frameTime = 1.0/(double)fps;
                 double time = Timer.getTime();
@@ -147,7 +148,7 @@ public class Factory {
                     while (Timer.getTime()-time < frameTime){
                         if (passed>=1.0){
                             passed = 0;
-                            System.out.println("frames = " + frames);
+                            //System.out.println("frames = " + frames);
                             frames = 0;
                         }
                     }
@@ -204,10 +205,10 @@ public class Factory {
         gui.update(window.getInput());
         if (customScreen != null) {
             customScreen.update(window.getInput());
-            customScreen.onMouseClicked(window.getInput());
         }
     }
 
+    int count = 0;
     private void render(){
         glClearColor(0, 0, 0, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -220,8 +221,17 @@ public class Factory {
         gui.render();
         if (customScreen != null)
             customScreen.draw();
-        if (player.getOnMouse() != null)
+        if (player.getOnMouse() != null) {
             Gui.getTextureRenderer().renderItem(player.getOnMouse(), player.getMouseX(), player.getMouseY());
+        }
+
+        count++;
+        if (count == 500){
+            count = 0;
+        }
+
+
+
 
         /*imGuiGlfw.newFrame();
         ImGui.newFrame();
@@ -261,6 +271,10 @@ public class Factory {
             glfwMakeContextCurrent(backupWindowPtr);
         }*/
         window.swapBuffers();
+    }
+
+    public static CustomScreen getCustomScreen() {
+        return customScreen;
     }
 
     private int loadTexture(final BufferedImage image) {

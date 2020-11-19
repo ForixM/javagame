@@ -7,6 +7,7 @@ import ma.forix.gui.Gui;
 import ma.forix.gui.widgets.Slot;
 import ma.forix.gui.Widget;
 import ma.forix.item.Item;
+import ma.forix.item.ItemStack;
 import ma.forix.renderer.Camera;
 import ma.forix.renderer.Shader;
 import ma.forix.renderer.Texture;
@@ -15,7 +16,7 @@ import org.joml.Vector2f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Hotbar extends Container<Item> implements Widget {
+public class Hotbar extends Container implements Widget {
 
     private Texture texture;
     private Slot[] slots;
@@ -33,7 +34,7 @@ public class Hotbar extends Container<Item> implements Widget {
         this.boundingBox = new AABB(new Vector2f(x, y), new Vector2f(texture.getWidth(), texture.getHeight()));
         slots = new Slot[size];
         for (int i = 0; i < slots.length; i++) {
-            slots[i] = new Slot(new Vector2f(-168 + (i*84), y), new Vector2f(32, 32));
+            slots[i] = new Slot(new Vector2f(-168 + (i*84), y), new Vector2f(32, 32), i);
         }
     }
 
@@ -42,7 +43,7 @@ public class Hotbar extends Container<Item> implements Widget {
         Gui.getTextureRenderer().renderTexture(texture, x, y);
         for (int i = 0; i < slots.length; i++) {
             slots[i].render(camera, Shader.gui);
-            Item item = (Item)getObject(i);
+            ItemStack item = getObject(i);
             if (item != null){
                 Gui.getTextureRenderer().renderItem(item, (int)slots[i].getBoundingBox().getCenter().x, (int)slots[i].getBoundingBox().getCenter().y);
             }
@@ -52,7 +53,7 @@ public class Hotbar extends Container<Item> implements Widget {
     }
 
     private Collision slotData;
-    private Item item;
+    private ItemStack item;
     @Override
     public void update(Input input) {
         mouseX = (int) input.getMousePosition().x;
@@ -62,7 +63,7 @@ public class Hotbar extends Container<Item> implements Widget {
             slotData = slots[i].getBoundingBox().getCollision(input.getMousePosition());
             if (slotData.isIntersecting){
                 if (input.isMouseButtonPressed(0)){
-                    item = (Item)getObject(i);
+                    item = getObject(i);
                     if (item != null){
                         if (input.isKeyDown(GLFW_KEY_LEFT_SHIFT))
                             player.getInventory().addObject(item);
@@ -79,16 +80,21 @@ public class Hotbar extends Container<Item> implements Widget {
     }
 
     @Override
-    public void onMouseClicked(int mouseButton) {
+    public void onMouseClicked() {
 
     }
 
-    public Item extractItemOnSlot(Vector2f mousePosition){
+    @Override
+    public void onKeyPressed() {
+
+    }
+
+    public ItemStack extractItemOnSlot(Vector2f mousePosition){
         for (int i = 0; i < slots.length; i++) {
             if (slots[i] != null){
                 slotData = slots[i].getBoundingBox().getCollision(mousePosition);
                 if (slotData.isIntersecting){
-                    item = (Item)getObject(i);
+                    item = getObject(i);
                     removeObject(i);
                     return item;
                 }

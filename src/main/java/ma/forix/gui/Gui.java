@@ -46,11 +46,11 @@ public class Gui {
 
                 if (data.isIntersecting) {
                     if (input.isMouseButtonDown(0)) {
-                        widget.onMouseClicked(0);
+                        widget.onMouseClicked();
                     } else if (input.isMouseButtonDown(1)) {
-                        widget.onMouseClicked(1);
+                        widget.onMouseClicked();
                     } else if (input.isMouseButtonDown(2)) {
-                        widget.onMouseClicked(2);
+                        widget.onMouseClicked();
                     }
                 }
             }

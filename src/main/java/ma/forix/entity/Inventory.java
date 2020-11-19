@@ -8,13 +8,14 @@ import ma.forix.game.Factory;
 import ma.forix.gui.*;
 import ma.forix.gui.widgets.Slot;
 import ma.forix.item.Item;
+import ma.forix.item.ItemStack;
 import ma.forix.renderer.*;
 import ma.forix.util.Input;
 import org.joml.Vector2f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Inventory extends Container<Item> implements Widget {
+public class Inventory extends Container implements Widget {
 
     private AABB boundingBox;
     private Texture texture;
@@ -37,16 +38,16 @@ public class Inventory extends Container<Item> implements Widget {
         for (int i = 0; i < slots.length; i++) {
             int x = i % 5;
             int y = i / 5;
-            slots[i] = new Slot(new Vector2f(startX + (84*x), 42 - (y*88)), new Vector2f(32, 32));
+            slots[i] = new Slot(new Vector2f(startX + (84*x), 42 - (y*88)), new Vector2f(32, 32), i);
         }
     }
 
-    public Inventory(int size, Vector2f position, Container<Item> container){
+    public Inventory(int size, Vector2f position, Container container){
         this(size, position);
         cloneContainer(container);
     }
 
-    public Inventory(int size, Entity entity, Vector2f position, Container<Item> container){
+    public Inventory(int size, Entity entity, Vector2f position, Container container){
         this(size, entity, position);
         cloneContainer(container);
     }
@@ -72,7 +73,7 @@ public class Inventory extends Container<Item> implements Widget {
                         slots[i].setPosition(new Vector2f((position.x+startX)+(84*x), (position.y+42)-(y*88)));
                         slots[i].render(camera, Shader.gui);
                         if (getObject(i) != null) {
-                            Gui.getTextureRenderer().renderItem((Item) getObject(i), (int) slots[i].getBoundingBox().getCenter().x, (int) slots[i].getBoundingBox().getCenter().y);
+                            Gui.getTextureRenderer().renderItem(getObject(i), (int) slots[i].getBoundingBox().getCenter().x, (int) slots[i].getBoundingBox().getCenter().y);
                         }
                     }
                 }
@@ -88,7 +89,7 @@ public class Inventory extends Container<Item> implements Widget {
                     int y = i/5;
                     slots[i].setPosition(new Vector2f((position.x+startX)+(84*x), (position.y+42)-(y*88)));
                     if (getObject(i) != null) {
-                        Gui.getTextureRenderer().renderItem((Item) getObject(i), (int) slots[i].getBoundingBox().getCenter().x, (int) slots[i].getBoundingBox().getCenter().y);
+                        Gui.getTextureRenderer().renderItem(getObject(i), (int) slots[i].getBoundingBox().getCenter().x, (int) slots[i].getBoundingBox().getCenter().y);
                     }
                     slots[i].render(camera, Shader.gui);
                 }
@@ -97,7 +98,7 @@ public class Inventory extends Container<Item> implements Widget {
     }
 
     private Collision slotData;
-    private Item item;
+    private ItemStack item;
     private Player player;
     @Override
     public void update(Input input) {
@@ -112,7 +113,7 @@ public class Inventory extends Container<Item> implements Widget {
                     if (slotData.isIntersecting) {
                         if (input.isMouseButtonPressed(0)) {
                             if (getObject(i) != null) {
-                                item = (Item)getObject(i);
+                                item = getObject(i);
                                 if (input.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
                                     if (player.isRenderBlockStorage()){
                                         player.getOpened().addObject(item);
@@ -160,7 +161,12 @@ public class Inventory extends Container<Item> implements Widget {
     }
 
     @Override
-    public void onMouseClicked(int mouseButton) {
+    public void onMouseClicked() {
+
+    }
+
+    @Override
+    public void onKeyPressed() {
 
     }
 

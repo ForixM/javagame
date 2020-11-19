@@ -5,6 +5,7 @@ import ma.forix.collision.AABB;
 import ma.forix.collision.Collision;
 import ma.forix.container.Container;
 import ma.forix.item.Item;
+import ma.forix.item.ItemStack;
 import ma.forix.renderer.*;
 import ma.forix.util.Transform;
 import ma.forix.world.World;
@@ -22,14 +23,14 @@ public class Entity {
     private AABB bounding_box;
     private World world;
 
-    private Container<Item> container;
+    private Container container;
 
     public Entity(World world, Texture texture, Transform transform){
         this.texture = texture;
         this.world = world;
         this.transform = transform;
         bounding_box = new AABB(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(transform.scale.x, transform.scale.y));
-        container = Container.createContainer(10);
+        container = new Container(10);
     }
 
     public void move(Vector2f direction){
@@ -38,7 +39,6 @@ public class Entity {
     }
 
     public void update(float delta, Window window, Camera camera, World world){
-
         AABB[] tile_boxes = new AABB[25];
         AABB[] item_boxes = new AABB[25];
         for (int i = 0; i < 5; i++) {
@@ -121,7 +121,7 @@ public class Entity {
             if (data.isIntersecting) {
                 int x = Math.abs((int)item_box.getCenter().x)/2;
                 int y  = Math.abs((int)item_box.getCenter().y)/2;
-                container.addObject(world.getItem(x, y));
+                container.addObject(new ItemStack(world.getItem(x, y), 1));
                 world.removeItem(x, y);
                 return;
             }
@@ -142,7 +142,7 @@ public class Entity {
             if (data.isIntersecting) {
                 int x = Math.abs((int)item_box.getCenter().x)/2;
                 int y  = Math.abs((int)item_box.getCenter().y)/2;
-                container.addObject(world.getItem(x, y));
+                container.addObject(new ItemStack(world.getItem(x, y), 1));
                 world.removeItem(x, y);
                 return;
             }
@@ -175,7 +175,7 @@ public class Entity {
         return transform;
     }
 
-    public Container<Item> getContainer() {
+    public Container getContainer() {
         return container;
     }
 

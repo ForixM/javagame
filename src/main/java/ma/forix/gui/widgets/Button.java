@@ -46,10 +46,15 @@ public class Button implements Widget {
     }
 
     @Override
-    public void onMouseClicked(int mouseButton) {
-        if (mouseButton == 0 && activated){
+    public void onMouseClicked() {
+        if (activated){
             selectedState = STATE_CLICKED;
         }
+    }
+
+    @Override
+    public void onKeyPressed() {
+
     }
 
     @Override

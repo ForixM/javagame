@@ -1,45 +1,70 @@
 package ma.forix.container;
 
 import ma.forix.item.Item;
+import ma.forix.item.ItemStack;
 
-public class Container<T extends Stockable> {
+public class Container {
 
-    private Stockable[] objects;
+    private ItemStack[] itemStacks;
     private int size;
 
     public Container(int size){
         this.size = size;
-        objects = new Stockable[size];
-    }
-
-    public static Container createContainer(int size){
-        if (size > 0) {
-            Container container = new Container(size);
-            return container;
-        }
-        return null;
+        itemStacks = new ItemStack[size];
     }
 
     public int getSize() {
         return size;
     }
     
-    public Stockable getObject(int slot){
-        return objects[slot];
+    public ItemStack getObject(int slot){
+        return itemStacks[slot];
     }
 
-    public Container addObject(T object){
-        for (int i = 0; i < objects.length; i++) {
-            if (objects[i] == null){
-                objects[i] = object;
+    public Container addObject(ItemStack object){
+        int stackId = -1;
+        for (int i = 0; i < itemStacks.length; i++) {
+            if (itemStacks[i] != null){
+                if (itemStacks[i].getItem().getId() == object.getItem().getId()){
+                    stackId = i;
+                    continue;
+                }
+            }
+        }
+
+        if (stackId != -1){
+            int rest = itemStacks[stackId].addStack(object.getStack());
+            if (rest == 0)
+                return this;
+        }
+        for (int i = 0; i < itemStacks.length; i++) {
+            if (itemStacks[i] != null) {
+                if (itemStacks[i].getItem().getId() == object.getItem().getId()) {
+                    if (itemStacks[i].addStack(object.getStack()) != 0) {
+                        continue;
+                    } else
+                        return this;
+                }
+            }
+            if (itemStacks[i] == null) {
+                itemStacks[i] = object;
                 return this;
             }
         }
+
         return null;
     }
 
+    public boolean addObject(int slot, ItemStack object){
+        if (itemStacks[slot] == null) {
+            itemStacks[slot] = object;
+            return true;
+        }
+        return false;
+    }
+
     public boolean isFull(){
-        for (Stockable object : objects) {
+        for (ItemStack object : itemStacks) {
             if (object == null)
                 return false;
         }
@@ -47,38 +72,29 @@ public class Container<T extends Stockable> {
     }
 
     public boolean removeObject(int slot){
-        objects[slot] = null;
+        itemStacks[slot] = null;
         return true;
     }
 
-    public boolean addObject(int slot, T object){
-        if (objects[slot] != null) {
-            objects[slot] = object;
-            return true;
-        }
-        return false;
+    public ItemStack[] getContent(){
+        return itemStacks;
     }
 
-    public Stockable[] getContent(){
-        return objects;
-    }
-
-    public void removeFirstItem(Item item){
-        for (int i = 0; i < objects.length; i++) {
-            System.out.println("i = " + i);
-            if (objects[i] != null) {
-                if (((Item) objects[i]).compare(item)) {
-                    objects[i] = null;
+    public void removeFirstItem(ItemStack item){
+        for (int i = 0; i < itemStacks.length; i++) {
+            if (itemStacks[i] != null) {
+                if (( itemStacks[i]).compare(item)) {
+                    itemStacks[i] = null;
                     return;
                 }
             }
         }
     }
 
-    public boolean haveObject(Item item){
-        for (Stockable object : objects) {
-            if (object != null) {
-                if (((Item) object).compare(item)) {
+    public boolean haveObject(ItemStack item){
+        for (ItemStack stack : itemStacks) {
+            if (stack != null) {
+                if ((stack).compare(item)) {
                     return true;
                 }
             }
@@ -86,8 +102,8 @@ public class Container<T extends Stockable> {
         return false;
     }
 
-    public void cloneContainer(Container<T> container){
-        objects = container.getContent();
+    public void cloneContainer(Container container){
+        itemStacks = container.getContent();
     }
 
 }
